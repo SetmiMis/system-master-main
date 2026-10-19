@@ -13,6 +13,8 @@ import { EnquiryForm } from "@/components/EnquiryForm";
 import { getCategories, getFaqs, getIntro } from "@/lib/content";
 import { site, mainSite } from "@/content/site";
 import { OrderFlow } from "@/components/OrderFlow";
+import { ExpoGallery } from "@/components/ExpoGallery";
+import { expoPhotos } from "@/content/expo";
 import { uses, who, why } from "@/content/story";
 
 export const revalidate = 300;
@@ -23,6 +25,7 @@ const chapters = [
   { id: "uses", label: "Where it is used" },
   { id: "process", label: "How we work" },
   { id: "why", label: "Why SETMI" },
+  { id: "expo", label: "At the expos" },
   { id: "faq", label: "Questions" },
   { id: "enquiry", label: "Find your connection" },
 ];
@@ -106,7 +109,11 @@ export default async function Home() {
           </ul>
         </Section>
 
-        <Section id="faq" label="06 · Customer questions" title="Questions, answered.">
+        <Section id="expo" label="06 · On the show floor" title="Meet us at industry expos.">
+          <ExpoGallery photos={expoPhotos} />
+        </Section>
+
+        <Section id="faq" label="07 · Customer questions" title="Questions, answered.">
           <div className="max-w-3xl divide-y divide-line border-y border-line">
             {faqs.map((f) => (
               <details key={f.id} className="group py-1">
@@ -120,7 +127,7 @@ export default async function Home() {
           </div>
         </Section>
 
-        <Section id="enquiry" label="07 · Find your connection" title="Let's find the right connection for your requirement.">
+        <Section id="enquiry" label="08 · Find your connection" title="Let's find the right connection for your requirement.">
           <Suspense>
             <EnquiryForm options={categories.map((c) => ({ slug: c.slug, title: c.title }))} />
           </Suspense>

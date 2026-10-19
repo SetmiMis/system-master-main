@@ -4,7 +4,7 @@ Status (2026-10-19): **live** at https://setmi-beyond-connections.vercel.app (Ve
 
 The existing `system-master` project (the company reference site) was not touched.
 
-**Important:** the project's production branch is the repository default (`main`), which still holds only the starter README. Merge `feat/cinematic-experience` into `main` (pull request) so future pushes to `main` deploy this site; until then, pushes to the feature branch create preview deployments only.
+The project's production branch is `main`. PR #2 (merged) brought an earlier version of the film to `main`; PR #3 brings the rest. After it is merged, every push to `main` deploys production; pushes to other branches create preview deployments.
 
 ## Steps
 1. In Vercel, import `SetmiMis/system-master-main` (or use the existing project if there is one: Project Settings, Git, connect this repo). Do not create a duplicate project for the same domain.

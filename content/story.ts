@@ -10,17 +10,6 @@ export const who = {
   ],
 };
 
-export const uses = {
-  heading: "Where these connections go to work.",
-  body: "Applications named on setmiindia.com for our connectors, plus what each product family physically does.",
-  items: [
-    { title: "Electrical and electronics assembly", body: "General assembly where long-term contact quality matters." },
-    { title: "OEM and panel building", body: "Panel-mount connectors with consistent contact quality." },
-    { title: "Maintenance, repair and replacement wiring", body: "Like-for-like parts for existing installations." },
-    { title: "Audio-video signal runs", body: "HDMI splitters, jointers and cables that move one source to many screens." },
-  ],
-};
-
 // Order journey. Steps and system names come from the SETMI overview project
 // (C:\Users\SETMI INDIA\Documents\setmi-overview, src/lib/data.ts and systems.ts).
 // Systems flagged internal there (OMS, ERP, attendance) are shown by function, never by name or link.
@@ -46,11 +35,3 @@ export const orderBranch = {
   no: "Purchase FMS raises the purchase order; production planning schedules any manufacturing; then quality check.",
 };
 
-export const why = {
-  heading: "What we can stand behind.",
-  points: [
-    { title: "Four decades in the trade", body: "Serving customers since 1983." },
-    { title: "A broad range in one place", body: "Eight categories of connectors, cables and accessories." },
-    { title: "Reachable by people", body: "A shop in Delhi, phone lines, WhatsApp and email." },
-  ],
-};

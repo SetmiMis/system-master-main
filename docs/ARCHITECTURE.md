@@ -19,10 +19,10 @@ Not installed, on purpose: GSAP (the film clock plus `motion` covers every timel
 ## Layout
 
 ```
-app/            routes: / (film), /products, /products/[slug], /expo, /faq, /enquiry, /admin, /api/enquiry, sitemap, robots
-components/     film/ (Film, Scenes, OrderExplainer, ConnectorScene), PageShell, Header, Footer, ProductVisual, SignalDiagram, EnquiryForm, ExpoGallery
-content/        typed fallback content: site, categories, faqs, story (copy, order steps), film (scenes + narration), expo (photos)
-lib/            content.ts (data access), vtt.ts, enquiry.ts, supabase*.ts
+app/            routes: / (film), /products, /products/[slug], /systems, /dashboard, /expo, /faq, /enquiry, /admin, /api/enquiry, sitemap, robots
+components/     film/ (Film, Scenes, OrderExplainer, ConnectorScene, useFilmAudio), PageShell, Header, Footer, ProductVisual, LottieIcon, EnquiryForm, ExpoGallery
+content/        typed fallback content: site, categories, faqs, story (copy, order steps), film (scenes + narration), expo (photos), trust (figures, certificate, marketplaces, systems)
+lib/            content.ts (data access), live.ts (store, reviews, metrics), vtt.ts, enquiry.ts, supabase*.ts
 supabase/       migrations/, seed.sql, README.md
 tests/          unit/ (Vitest), e2e/ (Playwright)
 docs/           this documentation
@@ -36,7 +36,7 @@ docs/           this documentation
 
 `Film.tsx` owns one clock (seconds into the current scene). The clock drives the scene, its inner animation, the captions and the timeline, so pausing pauses everything. Scene list, durations and narration live in `content/film.ts`; `buildVtt()` turns the narration into one WebVTT track on the film timeline. The `intro` row of the `scenes` table can override that track and add an opening video (from `/admin`).
 - Autoplay only when the tab is visible; reduced-motion visitors start paused.
-- Controls: play/pause, previous/next, timeline segments, arrow keys, space, swipe, scene list, captions toggle. Sound is disabled with an explanation until a video exists.
+- Controls: play/pause, previous/next, timeline segments, arrow keys, space, swipe, scene list, captions toggle, sound toggle.
 - Sound (`useFilmAudio.ts`): the browser speech voice (en-IN preferred) reads each caption, over a quiet Web Audio pad. Off until the visitor turns it on. A recorded narration or a video URL replaces it.
 - Live data (`lib/live.ts`, server-side, cached): store prices parsed from setmiindia.com listings (hourly), Google rating and reviews via Places API when `GOOGLE_PLACES_API_KEY` / `GOOGLE_PLACE_ID` are set (fallback 4.9 from 301), enquiry metrics from the E2O Apps Script when `E2O_METRICS_URL` / `E2O_METRICS_KEY` are set.
 - `Scenes.tsx` holds one component per scene. `OrderExplainer.tsx` is the animated order flow (shared-layout order card moving node to node). `ConnectorScene.tsx` is the reference site's 3D BNC model without its drei `<Html>` labels, which crashed on unmount.

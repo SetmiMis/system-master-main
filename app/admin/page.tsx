@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/supabase-server";
-import { deleteFaq, saveCategory, saveFaq, saveScene, signOut } from "./actions";
+import { deleteFaq, deleteSystem, saveCategory, saveFaq, saveScene, saveSystem, signOut } from "./actions";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -13,11 +13,12 @@ const Status = ({ v }: { v: string }) => (
 export default async function Admin({ searchParams }: { searchParams: Promise<{ m?: string }> }) {
   const db = await requireAdmin();
   const { m } = await searchParams;
-  const [cats, faqs, scene, enq] = await Promise.all([
+  const [cats, faqs, scene, enq, systems] = await Promise.all([
     db.from("categories").select("*").order("sort"),
     db.from("faqs").select("*").order("sort"),
     db.from("scenes").select("*").eq("slug", "intro").maybeSingle(),
     db.from("enquiries").select("*").order("created_at", { ascending: false }).limit(50),
+    db.from("systems").select("*").order("sort"),
   ]);
 
   return (
@@ -35,11 +36,38 @@ export default async function Admin({ searchParams }: { searchParams: Promise<{ 
             <input type="hidden" name="slug" value="intro" />
             <label className="eyebrow block">Video URL (https, MP4/WebM)<input name="video_url" defaultValue={scene.data.video_url ?? ""} className={field} /></label>
             <label className="eyebrow block">Poster image URL<input name="poster_url" defaultValue={scene.data.poster_url ?? ""} className={field} /></label>
-            <label className="eyebrow block">Captions (WebVTT)<textarea name="vtt" rows={10} defaultValue={scene.data.vtt ?? ""} className={`${field} font-mono`} /></label>
+            <label className="eyebrow block">Captions (WebVTT, whole-film timeline; leave empty to use the built-in captions)<textarea name="vtt" rows={10} defaultValue={scene.data.vtt ?? ""} className={`${field} font-mono`} /></label>
             <Status v={scene.data.status} />
             <button className="btn btn-primary">Save scene</button>
           </form>
         )}
+      </section>
+
+      <section aria-labelledby="a-sys">
+        <h2 id="a-sys" className="text-2xl font-extrabold">Systems (shown on /systems and in the film)</h2>
+        <div className="mt-4 space-y-4">
+          {[...(systems.data ?? []), { id: "", name: "", description: "", url: "https://", grp: "", icon: "records", sort: systems.data?.length ?? 0, status: "draft" }].map((s) => (
+            <div key={s.id || "new"} className="rounded-2xl border border-panel-line p-5">
+              <form action={saveSystem} className="space-y-3">
+                <input type="hidden" name="id" value={s.id} />
+                <p className="eyebrow">{s.id ? s.name : "Add a new system"}</p>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <label className="eyebrow block">Name<input name="name" required defaultValue={s.name} className={field} /></label>
+                  <label className="eyebrow block">Link (https)<input name="url" type="url" required defaultValue={s.url} className={field} /></label>
+                </div>
+                <label className="eyebrow block">Short description<input name="description" required defaultValue={s.description} className={field} /></label>
+                <div className="grid gap-3 md:grid-cols-4">
+                  <label className="eyebrow block">Group<input name="grp" required defaultValue={s.grp} placeholder="Sales & Orders" className={field} /></label>
+                  <label className="eyebrow block">Icon<select name="icon" defaultValue={s.icon} className={field}>{["records", "truck", "success", "quality", "support", "shield", "handshake"].map((i) => <option key={i}>{i}</option>)}</select></label>
+                  <label className="eyebrow block">Order<input name="sort" type="number" defaultValue={s.sort} className={field} /></label>
+                  <Status v={s.status} />
+                </div>
+                <button className="btn btn-primary">{s.id ? "Save" : "Add system"}</button>
+              </form>
+              {s.id && <form action={deleteSystem} className="mt-3"><input type="hidden" name="id" value={s.id} /><button className="btn !border-critical text-critical">Delete</button></form>}
+            </div>
+          ))}
+        </div>
       </section>
 
       <section aria-labelledby="a-cats">

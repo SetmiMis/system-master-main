@@ -61,11 +61,43 @@ export async function saveCategory(f: FormData) {
 
 export async function saveScene(f: FormData) {
   const db = await requireAdmin();
-  const p = z.object({ video_url: z.string().url().nullable(), poster_url: z.string().max(500).nullable(), vtt: z.string().max(20000), status }).safeParse({
-    video_url: text(f.get("video_url")) || null, poster_url: text(f.get("poster_url")) || null, vtt: String(f.get("vtt") ?? ""), status: f.get("status"),
+  const p = z.object({ video_url: z.string().url().nullable(), poster_url: z.string().max(500).nullable(), vtt: z.string().max(20000).nullable(), status }).safeParse({
+    video_url: text(f.get("video_url")) || null, poster_url: text(f.get("poster_url")) || null, vtt: String(f.get("vtt") ?? "").trim() || null, status: f.get("status"),
   });
   if (!p.success) back("Invalid scene: " + p.error.issues.map((i) => i.path + " " + i.message).join("; "));
   const { error } = await db.from("scenes").update(p.data!).eq("slug", text(f.get("slug")));
   refresh();
   back(error ? `Save failed: ${error.message}` : "Scene saved");
+}
+
+const icons = ["records", "truck", "success", "quality", "support", "shield", "handshake"] as const;
+
+export async function saveSystem(f: FormData) {
+  const db = await requireAdmin();
+  const p = z.object({
+    name: z.string().min(2).max(80),
+    description: z.string().min(3).max(300),
+    url: z.string().url().startsWith("https://", "URL must start with https://"),
+    grp: z.string().min(2).max(60),
+    icon: z.enum(icons),
+    sort: z.coerce.number().int(),
+    status,
+  }).safeParse({
+    name: text(f.get("name")), description: text(f.get("description")), url: text(f.get("url")), grp: text(f.get("grp")),
+    icon: f.get("icon"), sort: f.get("sort"), status: f.get("status"),
+  });
+  if (!p.success) back("Invalid system: " + p.error.issues.map((i) => i.path + " " + i.message).join("; "));
+  const id = text(f.get("id"));
+  const { error } = id ? await db.from("systems").update(p.data!).eq("id", id) : await db.from("systems").insert(p.data!);
+  revalidatePath("/systems");
+  refresh();
+  back(error ? `Save failed: ${error.message}` : "System saved");
+}
+
+export async function deleteSystem(f: FormData) {
+  const db = await requireAdmin();
+  const { error } = await db.from("systems").delete().eq("id", text(f.get("id")));
+  revalidatePath("/systems");
+  refresh();
+  back(error ? `Delete failed: ${error.message}` : "System deleted");
 }

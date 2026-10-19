@@ -1,9 +1,10 @@
 // Generates supabase/seed.sql from /content so the database starts identical to the local fallback.
 // Run: npm run seed:sql   (Node 24 runs TypeScript directly)
+// The film caption track is left null: the site then uses the built-in track from content/film.ts.
 import { writeFileSync } from "node:fs";
 import { categories } from "../content/categories.ts";
 import { faqs } from "../content/faqs.ts";
-import { buildVtt } from "../content/film.ts";
+
 
 const q = (s: string | null | undefined) => (s == null ? "null" : `'${s.replaceAll("'", "''")}'`);
 const arr = (a: string[]) => `array[${a.map(q).join(", ")}]::text[]`;
@@ -19,6 +20,6 @@ categories.forEach((c, i) => {
 faqs.forEach((f, i) => {
   out.push(`insert into public.faqs (question, answer, sort, status) select ${q(f.question)}, ${q(f.answer)}, ${i}, ${q(f.status)} where not exists (select 1 from public.faqs where question = ${q(f.question)});`);
 });
-out.push(`insert into public.scenes (slug, heading, body, vtt, status) values ('intro', 'Opening', '', ${q(buildVtt())}, 'published') on conflict (slug) do nothing;`);
+out.push(`insert into public.scenes (slug, heading, body, vtt, status) values ('intro', 'Home film', '', null, 'published') on conflict (slug) do nothing;`);
 writeFileSync(new URL("../supabase/seed.sql", import.meta.url), out.join("\n") + "\n");
 console.log(`seed.sql: ${categories.length} categories, ${faqs.length} faqs, 1 scene`);

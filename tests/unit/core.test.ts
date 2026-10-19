@@ -38,3 +38,14 @@ describe("content", () => {
     for (const c of categories) expect(c.sourceUrl.startsWith("https://setmiindia.com/")).toBe(true);
   });
 });
+
+describe("store listing parser", () => {
+  it("reads title, link, image and current price from a real setmiindia.com category page", async () => {
+    const { parseListing } = await import("@/lib/live");
+    const { readFileSync } = await import("node:fs");
+    const ps = parseListing(readFileSync("tests/unit/fixture-listing.html", "utf8"));
+    expect(ps.length).toBeGreaterThan(5);
+    expect(ps[0]).toMatchObject({ title: "C TO HDMI CONVERTER", url: "https://setmiindia.com/product/c-to-hdmi-converter/", price: "₹270" });
+    expect(ps[0].image).toMatch(/^https:\/\/setmiindia\.com\/wp-content\/uploads\//);
+  });
+});

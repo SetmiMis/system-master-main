@@ -11,18 +11,17 @@
 2. SQL editor: `insert into public.admin_users (user_id) select id from auth.users where email = 'you@example.com';`
 3. Sign in at `/admin`.
 
-## Replace the opening video and captions
+## The home film: captions, timing and video
 
-1. Upload the MP4 (H.264, 1080p, under about 15 MB for the intro) to any HTTPS host (Supabase Storage public bucket, Vercel Blob, your CDN).
-2. `/admin`, Opening scene: paste the video URL and an optional poster URL.
-3. Edit the WebVTT captions to match the video's timing, set status to **published**, save.
-4. Reload `/`, choose Start experience, and check captions line up. The timeline length is taken from the video.
+- Scene order, length (seconds) and narration: `content/film.ts` (code change and deploy).
+- Caption track without a deploy: `/admin`, Opening scene, Captions (WebVTT). Times are on the whole film timeline (scene 2 starts at 8 s, and so on). Run `npm run seed:sql` to see the default track.
+- Opening video: upload an MP4 (H.264, 1080p, under about 15 MB) to an HTTPS host, paste the URL in `/admin`, publish. It plays muted behind the first scene; the Sound button then works.
 
 WebVTT format:
 ```
 WEBVTT
 
-00:00.500 --> 00:04.000
+00:00.500 --> 00:04.500
 First caption line.
 ```
 

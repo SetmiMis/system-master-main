@@ -1,7 +1,7 @@
 import { anonClient } from "@/lib/supabase";
 import { categories as localCategories } from "@/content/categories";
 import { faqs as localFaqs } from "@/content/faqs";
-import { intro as localIntro } from "@/content/story";
+import { buildVtt } from "@/content/film";
 import type { Category, Faq } from "@/types/content";
 
 // Published rows from Supabase win; local files in /content are the fallback when the
@@ -34,8 +34,9 @@ export async function getFaqs(): Promise<Faq[]> {
   return data.map((r) => ({ id: r.id, question: r.question, answer: r.answer, status: "published" }));
 }
 
-export async function getIntro(): Promise<{ vtt: string; videoUrl: string | null; posterUrl: string | null; duration: number }> {
-  const base = { vtt: localIntro.vtt, videoUrl: null, posterUrl: null, duration: localIntro.duration };
+export async function getIntro(): Promise<{ vtt: string; videoUrl: string | null; posterUrl: string | null }> {
+  // The "intro" scenes row holds the whole film's caption track and optional opening video.
+  const base = { vtt: buildVtt(), videoUrl: null, posterUrl: null };
   const db = anonClient();
   if (!db) return base;
   const { data } = await db.from("scenes").select("vtt,video_url,poster_url").eq("slug", "intro").eq("status", "published").maybeSingle();

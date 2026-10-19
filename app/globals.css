@@ -1,82 +1,134 @@
 @import "tailwindcss";
 
-/* Design tokens. Accent values sampled from the official logo (cyan + green). */
-@theme {
-  --color-ink: #0a0c0e;
-  --color-panel: #12161a;
-  --color-line: #29313a;
-  --color-paper: #f1efea;
-  --color-mute: #9ba4ad;
-  --color-cyan: #35e3f5;
-  --color-lime: #6bef4a;
-  --font-display: var(--f-display), "Times New Roman", serif;
-  --font-sans: var(--f-sans), system-ui, sans-serif;
-  --font-mono: var(--f-mono), ui-monospace, monospace;
-  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+/* Theme copied from the company reference site (system-master-mu.vercel.app, setmi-overview/src/app/globals.css):
+   white base with a faint blue grid, navy ink, SETMI blues, and a ".theme-dark" control-room variant
+   (navy + teal) that re-themes every token-based component inside it. */
+:root {
+  --bg: #ffffff;
+  --bg-elevated: #f2f5f7;
+  --panel-line: rgba(1, 53, 86, 0.12);
+  --ink: #0b2540;
+  --ink-dim: #4c6478;
+  --accent: #005a84;
+  --accent-strong: #013556;
+  --accent-soft: #4c9fc4;
+  --ok: #047c00;
+  --critical: #b3261e;
+  --grid-line: rgba(1, 53, 86, 0.05);
+  --header-gradient: linear-gradient(45deg, #4c9fc4 0%, #013556 100%);
+  --cat-1: #0b6fa8;
+  --cat-2: #2fb6d9;
+  --cat-3: #1e9e6b;
+  --cat-4: #d18a17;
+  --cat-5: #8b5fbf;
+  --cat-6: #d2574b;
+  color-scheme: light;
 }
 
-html {
-  background: var(--color-ink);
-  color: var(--color-paper);
-  scroll-behavior: smooth;
-  scroll-padding-top: 4.5rem;
-}
-body {
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
+.theme-dark {
+  --bg: #0b1625;
+  --bg-elevated: #112238;
+  --ink: #e8f1f8;
+  --ink-dim: #9db2c6;
+  --panel-line: rgba(255, 255, 255, 0.1);
+  --grid-line: rgba(255, 255, 255, 0.045);
+  --accent: #2fb6a1;
+  --accent-strong: #5fd6c3;
+  --accent-soft: #4cc3d9;
+  --ok: #3ddc84;
+  --critical: #ff6b5e;
+  color-scheme: dark;
+  background: var(--bg);
+  color: var(--ink);
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-cyan);
-  outline-offset: 3px;
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-ink: var(--ink);
+  --color-ink-dim: var(--ink-dim);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: var(--ok);
+  --color-critical: var(--critical);
+  --color-panel-line: var(--panel-line);
+  --color-cat-1: var(--cat-1);
+  --color-cat-2: var(--cat-2);
+  --color-cat-3: var(--cat-3);
+  --color-cat-4: var(--cat-4);
+  --color-cat-5: var(--cat-5);
+  --color-cat-6: var(--cat-6);
+  --font-display: var(--font-inter), system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 }
 
-.label {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-mute);
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { text-wrap: balance; }
+::selection { background: var(--accent-soft); color: #04141a; }
+:focus-visible { outline: 2px solid var(--accent-soft); outline-offset: 3px; }
+
+.grid-field {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 40%, transparent 85%);
 }
+.header-gradient { background: var(--header-gradient); }
+.text-gradient {
+  background: linear-gradient(100deg, var(--accent-soft), var(--accent-strong) 70%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.theme-dark .text-gradient { background-image: linear-gradient(100deg, #4cc3d9, #5fd6c3 70%); }
+.hero-glow {
+  position: absolute; top: -40px; right: -10%; width: 520px; height: 520px; max-width: 100%; border-radius: 50%;
+  background: radial-gradient(circle, rgba(76, 159, 196, 0.28), transparent 65%);
+  filter: blur(20px); pointer-events: none; animation: glow 9s ease-in-out infinite alternate;
+}
+.theme-dark .hero-glow { background: radial-gradient(circle, rgba(47, 182, 161, 0.22), transparent 65%); }
+@keyframes glow { to { transform: translate(-30px, 24px) scale(1.08); } }
+
+.eyebrow { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); }
+.theme-dark .eyebrow { color: #2fb6a1; }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  min-height: 2.9rem;
-  padding: 0 1.4rem;
-  border: 1px solid var(--color-line);
-  font-size: 0.92rem;
-  font-weight: 500;
-  transition: background-color 0.25s, border-color 0.25s, color 0.25s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 2.75rem; padding: 0 1.25rem; border-radius: 0.5rem;
+  border: 1px solid var(--panel-line); background: var(--bg);
+  font-size: 0.92rem; font-weight: 700; color: var(--ink);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s, background-color 0.2s;
 }
-.btn:hover { border-color: var(--color-cyan); color: var(--color-cyan); }
-.btn-primary { background: var(--color-cyan); border-color: var(--color-cyan); color: var(--color-ink); }
-.btn-primary:hover { background: var(--color-paper); border-color: var(--color-paper); color: var(--color-ink); }
-.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn:hover { border-color: var(--accent); }
+.btn-primary {
+  border-color: transparent; color: #fff;
+  background-image: linear-gradient(135deg, #005a84 0%, #013556 100%);
+  box-shadow: 0 10px 24px -10px rgba(0, 90, 132, 0.7);
+}
+.btn-primary:hover { transform: translateY(-1px); border-color: transparent; }
+.theme-dark .btn { background: rgba(255, 255, 255, 0.04); }
+.theme-dark .btn-primary { background: #2fb6a1; background-image: none; color: #06201c; box-shadow: none; }
+.theme-dark .btn-primary:hover { background: #3cc8b2; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.icon-btn { width: 2.5rem; min-height: 2.5rem; padding: 0; }
 
-/* Intro backdrop drift. Off for reduced-motion users. */
-@keyframes drift { from { transform: scale(1.04); } to { transform: scale(1.16) translateX(-1.5%); } }
-.drift { animation: drift 14s linear forwards; }
-
+.trace { stroke: var(--accent-soft); stroke-width: 1.6; fill: none; stroke-dasharray: 6 7; opacity: 0.8; animation: march 2.4s linear infinite; }
+@keyframes march { to { stroke-dashoffset: -130; } }
+.draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.4s ease-out 0.2s forwards; }
 @keyframes draw { to { stroke-dashoffset: 0; } }
-.draw { stroke-dasharray: 1; stroke-dashoffset: 1; }
-.in-view .draw { animation: draw 1.8s var(--ease-out-quint) forwards; }
+.float { animation: float 6s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-.grain {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  animation: grain 0.9s steps(4) infinite;
-}
-@keyframes grain { 0% { transform: translate(0, 0); } 25% { transform: translate(-3%, 2%); } 50% { transform: translate(2%, -3%); } 75% { transform: translate(-2%, -1%); } 100% { transform: translate(0, 0); } }
+.zoomable-dialog { margin: auto; overflow: visible; }
+.zoomable-dialog::backdrop { background: rgba(4, 10, 16, 0.85); }
 
 details > summary { list-style: none; }
 details > summary::-webkit-details-marker { display: none; }
 details[open] .plus { transform: rotate(45deg); }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .drift, .grain { animation: none; }
-  .draw { stroke-dashoffset: 0; animation: none !important; }
-  * { transition-duration: 0.01ms !important; }
+  .hero-glow, .trace, .float { animation: none; }
+  .draw { animation: none; stroke-dashoffset: 0; }
+  * { transition-duration: 0.001ms !important; }
 }

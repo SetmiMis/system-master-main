@@ -1,48 +1,67 @@
 import { expect, test } from "@playwright/test";
 
-test("landing page renders with content visible and no horizontal overflow", async ({ page }) => {
+const scene = (page: import("@playwright/test").Page) => page.locator('[aria-roledescription="scene"]').last();
+
+test("home film opens on the first scene, fits the screen and does not scroll", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Every connection enables something greater");
-  await expect(page.getByRole("heading", { name: /Since 1983/ })).toBeVisible();
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-  expect(overflow).toBeLessThanOrEqual(0);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Every connection enables");
+  const { overflowX, overflowY } = await page.evaluate(() => ({
+    overflowX: document.documentElement.scrollWidth - innerWidth,
+    overflowY: document.documentElement.scrollHeight - innerHeight,
+  }));
+  expect(overflowX).toBeLessThanOrEqual(0);
+  expect(overflowY).toBeLessThanOrEqual(0);
 });
 
-test("intro: start, captions toggle, sound is honestly disabled, skip lands on content", async ({ page }) => {
+test("film auto-advances, and pause stops it", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Start experience" }).click();
-  const dialog = page.getByRole("dialog", { name: /introduction/i });
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByText("Every connection enables something greater.")).toBeVisible();
-  await dialog.getByRole("button", { name: /Captions on/ }).click();
-  await expect(dialog.getByRole("button", { name: /Captions off/ })).toBeVisible();
-  await expect(dialog.getByRole("button", { name: /Sound unavailable/ })).toBeDisabled();
-  await dialog.getByRole("button", { name: "Skip intro" }).click();
-  await expect(dialog).toBeHidden();
-  await expect(page.locator("#who")).toBeInViewport();
+  await expect(scene(page)).toHaveAttribute("aria-label", "Who we are", { timeout: 12_000 });
+  await page.getByRole("button", { name: "Pause" }).click();
+  await page.waitForTimeout(10_000);
+  await expect(scene(page)).toHaveAttribute("aria-label", "Who we are");
 });
 
-test("intro closes with Escape and restores focus", async ({ page }) => {
+test("next, previous, keyboard and timeline jump between scenes", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Start experience" }).click();
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog")).toBeHidden();
-  await expect(page.getByRole("button", { name: "Start experience" })).toBeFocused();
+  await page.getByRole("button", { name: "Pause" }).click();
+  await page.getByRole("button", { name: "Next scene" }).click();
+  await expect(scene(page)).toHaveAttribute("aria-label", "Who we are");
+  await page.keyboard.press("ArrowRight");
+  await expect(scene(page)).toHaveAttribute("aria-label", "What we supply");
+  await page.getByRole("button", { name: "Previous scene" }).click();
+  await expect(scene(page)).toHaveAttribute("aria-label", "Who we are");
+  await page.getByRole("button", { name: /Scene 6: How an order moves/ }).click();
+  await expect(scene(page)).toHaveAttribute("aria-label", "How an order moves");
+  await expect(page.getByText("Sales FMS").first()).toBeVisible();
 });
 
-test("explore without intro goes straight to content", async ({ page }) => {
+test("captions follow the film and can be turned off; sound is honestly disabled", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Explore without intro" }).click();
-  await expect(page).toHaveURL(/#who$/);
+  await expect(page.getByText("Every connection enables something greater.").last()).toBeVisible({ timeout: 5_000 });
+  await page.getByRole("button", { name: "Captions on" }).click();
+  await expect(page.getByRole("button", { name: "Captions off" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Sound unavailable/ })).toBeDisabled();
 });
 
-test("reduced motion: content is visible without animation", async ({ browser }) => {
+test("reduced motion: the film starts paused", async ({ browser }) => {
   const ctx = await browser.newContext({ reducedMotion: "reduce" });
   const page = await ctx.newPage();
   await page.goto("http://localhost:3100/");
-  await page.locator("#faq").scrollIntoViewIfNeeded();
-  await expect(page.getByText("What is SETMI INDIA?")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Play" })).toBeVisible();
+  await page.waitForTimeout(9_000);
+  await expect(scene(page)).toHaveAttribute("aria-label", "Welcome");
   await ctx.close();
+});
+
+test("3D connector scene loads without errors", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/");
+  await page.getByRole("button", { name: /Scene 4: Inside a connector/ }).click();
+  await expect(page.locator("canvas")).toBeVisible({ timeout: 15_000 });
+  await page.getByRole("button", { name: "Next scene" }).click();
+  await page.waitForTimeout(1500);
+  expect(errors).toEqual([]);
 });
 
 test("product pages resolve and link to setmiindia.com", async ({ page, request }) => {
@@ -54,28 +73,31 @@ test("product pages resolve and link to setmiindia.com", async ({ page, request 
   expect((await request.get("/products/does-not-exist")).status()).toBe(404);
 });
 
-test("FAQ opens", async ({ page }) => {
-  await page.goto("/#faq");
-  const q = page.getByText("How can I request a quotation?");
-  await q.click();
+test("FAQ page opens an answer", async ({ page }) => {
+  await page.goto("/faq");
+  await page.getByText("How can I request a quotation?").click();
   await expect(page.getByText("tell us the items and quantities")).toBeVisible();
 });
 
-test("enquiry validates input server-side and rejects honeypot", async ({ request }) => {
+test("enquiry page preselects the category; API validates and rejects honeypot", async ({ page, request }) => {
+  await page.goto("/enquiry?category=cables");
+  await expect(page.getByLabel("Product area")).toHaveValue("cables");
   const bad = await request.post("/api/enquiry", { data: { category: "x", name: "A", contact: "1", message: "" } });
   expect(bad.status()).toBe(400);
   const bot = await request.post("/api/enquiry", { data: { category: "x", name: "Bot", contact: "bot@x.com", message: "spam spam", website: "http://x" } });
   expect(bot.status()).toBe(400);
 });
 
-test("admin requires sign-in and is not indexable", async ({ page, request }) => {
-  await page.goto("/admin");
-  await expect(page).toHaveURL(/\/admin\/login/);
-  const robots = await (await request.get("/robots.txt")).text();
-  expect(robots).toContain("Disallow: /admin");
+test("expo gallery opens the lightbox", async ({ page }) => {
+  await page.goto("/expo");
+  await page.getByRole("button", { name: "Open expo photo 1 of 20" }).click();
+  await expect(page.getByRole("dialog", { name: "Expo photo viewer" })).toBeVisible();
+  await expect(page.getByText("1 / 20")).toBeVisible();
 });
 
-test("no secrets in the browser bundle", async ({ request }) => {
-  const html = await (await request.get("/")).text();
-  expect(html).not.toMatch(/service_role|sb_secret_/);
+test("admin requires sign-in and is not indexable; no secrets in HTML", async ({ page, request }) => {
+  await page.goto("/admin");
+  await expect(page).toHaveURL(/\/admin\/login/);
+  expect(await (await request.get("/robots.txt")).text()).toContain("Disallow: /admin");
+  expect(await (await request.get("/")).text()).not.toMatch(/service_role|sb_secret_/);
 });

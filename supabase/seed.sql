@@ -18,12 +18,45 @@ insert into public.faqs (question, answer, sort, status) select 'Where can I fin
 insert into public.faqs (question, answer, sort, status) select 'How can I contact the sales team?', 'Call +91 85868 78111 or +91 11 47414746, WhatsApp +91 85868 78111, or email info@setmiindia.com. We are at 167-168, Old Lajpat Rai Market, opposite Red Fort, Delhi-110006.', 7, 'published' where not exists (select 1 from public.faqs where question = 'How can I contact the sales team?');
 insert into public.scenes (slug, heading, body, vtt, status) values ('intro', 'Opening', '', 'WEBVTT
 
-00:00.500 --> 00:04.000
+00:00.500 --> 00:04.500
 Every connection enables something greater.
 
-00:04.000 --> 00:08.000
+00:04.500 --> 00:08.000
 Welcome to SETMI INDIA.
 
-00:08.000 --> 00:12.000
-Engineered for the Extraordinary.
+00:08.000 --> 00:12.500
+Since 1983, from Old Lajpat Rai Market in Delhi,
+
+00:12.500 --> 00:17.000
+we have supplied cables, connectors and multimedia products across India.
+
+00:17.000 --> 00:25.000
+Connectors, circular and waterproof connectors, couplers, sockets and plugs.
+
+00:25.000 --> 00:33.000
+HDMI splitters, cables, and the parts that hold an installation together.
+
+00:33.000 --> 00:43.000
+Take a closer look at a BNC plug from our range.
+
+00:43.000 --> 00:48.000
+They go into electronics assembly, panel building and repair work,
+
+00:48.000 --> 00:53.000
+and carry audio and video from one source to many screens.
+
+00:53.000 --> 01:01.000
+Every order moves through seven panels,
+
+01:01.000 --> 01:10.500
+each one tracked on a system, from enquiry to delivery.
+
+01:10.500 --> 01:20.500
+You will find us on the show floor at industry expos.
+
+01:20.500 --> 01:28.500
+Four decades, a broad range in one place, and people you can reach.
+
+01:28.500 --> 01:58.500
+Let''s find the right connection for your requirement.
 ', 'published') on conflict (slug) do nothing;

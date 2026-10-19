@@ -28,10 +28,13 @@ First e2e run: `npx playwright install chromium`.
 
 ## What is in it
 
-- `/` : opening scene, who we are, what we supply, where it is used, how we work, why SETMI, FAQ, enquiry and closing actions.
-- `/products`, `/products/[slug]` : category pages with links to the matching setmiindia.com category.
+- `/` : a short auto-playing film (9 scenes, about 90 seconds) instead of a long scroll page. Visitors can pause, step, jump on the timeline, use arrow keys or swipe; captions run from one WebVTT track. Scenes: welcome, who we are, what we supply, a 3D BNC connector, where it is used, how an order moves (animated system explainer), expos, why SETMI, and a closing call to action.
+- `/products`, `/products/[slug]` : category pages linking to setmiindia.com.
+- `/expo` : expo photo gallery with lightbox. `/faq` : questions and answers. `/enquiry` : enquiry and quotation form.
 - `/api/enquiry` : validated, rate-limited enquiry endpoint (stores to Supabase).
-- `/admin` : sign-in protected editor for the opening scene (video URL, poster, WebVTT captions), categories, FAQs, and the enquiry inbox.
+- `/admin` : sign-in protected editor for the film caption track and opening video, categories, FAQs, and the enquiry inbox.
+
+Look and feel follow the company reference site (system-master-mu.vercel.app): same colour tokens, Inter + IBM Plex Mono, white grid sections and navy/teal dark sections.
 
 ## Documentation
 

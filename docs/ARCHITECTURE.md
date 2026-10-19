@@ -8,18 +8,19 @@
 | `tailwindcss` 4 | Design tokens (`app/globals.css` `@theme`) and layout |
 | `motion` (`motion/react`) | Reveals, crossfades, `MotionConfig reducedMotion="user"` strips transforms for users who prefer reduced motion |
 | `lucide-react` | Interface icons |
+| `three`, `@react-three/fiber`, `@react-three/drei` | The 3D BNC connector scene, reused from the company reference site; loaded only when that scene is reached |
 | `@supabase/supabase-js`, `@supabase/ssr` | Public reads and enquiry inserts (anon key), cookie sessions for admin |
 | `zod` | Server-side validation (enquiries, admin forms) |
 | `vitest`, `@playwright/test` | Unit and browser tests |
 
-Not installed, on purpose: GSAP (no scene needs timeline choreography; the diagram line-drawing is CSS) and Lenis (native scrolling keeps back/forward, anchors, keyboard and reduced motion correct).
+Not installed, on purpose: GSAP (the film clock plus `motion` covers every timeline here), Lenis (the home page does not scroll), Lottie/Rive (no designed animation files exist yet; add when a motion designer supplies them), react-spring (duplicates `motion`).
 
 ## Layout
 
 ```
-app/            routes: / , /products, /products/[slug], /admin, /api/enquiry, sitemap, robots
-components/     Opening, IntroPlayer, Supply, SignalDiagram, EnquiryForm, Header, Footer, ProductVisual, Reveal
-content/        typed fallback content: site, categories, faqs, story (copy), intro captions (WebVTT)
+app/            routes: / (film), /products, /products/[slug], /expo, /faq, /enquiry, /admin, /api/enquiry, sitemap, robots
+components/     film/ (Film, Scenes, OrderExplainer, ConnectorScene), PageShell, Header, Footer, ProductVisual, SignalDiagram, EnquiryForm, ExpoGallery
+content/        typed fallback content: site, categories, faqs, story (copy, order steps), film (scenes + narration), expo (photos)
 lib/            content.ts (data access), vtt.ts, enquiry.ts, supabase*.ts
 supabase/       migrations/, seed.sql, README.md
 tests/          unit/ (Vitest), e2e/ (Playwright)
@@ -30,14 +31,12 @@ docs/           this documentation
 
 `lib/content.ts` reads published rows from Supabase with the anon key; if Supabase is not configured, errors or is empty it returns the local files in `/content`. Pages revalidate every 5 minutes, so admin edits appear within that window.
 
-## Intro player (`components/IntroPlayer.tsx`)
+## Home film (`components/film/`)
 
-One timeline drives captions, scene markers, progress and the transcript.
-- With a `video_url` on the `intro` scene, the `<video>` element is the clock (starts muted for autoplay policy; the Sound button unmutes).
-- Without footage a virtual clock runs over catalogue stills and says "Footage pending". The Sound button is disabled with an explanation until a video exists. Nothing pretends to be final media.
-- If the video errors, the player falls back to the stills automatically.
-- Captions are WebVTT parsed from data (`lib/vtt.ts`), not hardcoded in a component.
-- Modal behaviour: background `inert`, scroll lock, Escape closes, focus returns to the Start button.
+`Film.tsx` owns one clock (seconds into the current scene). The clock drives the scene, its inner animation, the captions and the timeline, so pausing pauses everything. Scene list, durations and narration live in `content/film.ts`; `buildVtt()` turns the narration into one WebVTT track on the film timeline. The `intro` row of the `scenes` table can override that track and add an opening video (from `/admin`).
+- Autoplay only when the tab is visible; reduced-motion visitors start paused.
+- Controls: play/pause, previous/next, timeline segments, arrow keys, space, swipe, scene list, captions toggle. Sound is disabled with an explanation until a video exists.
+- `Scenes.tsx` holds one component per scene. `OrderExplainer.tsx` is the animated order flow (shared-layout order card moving node to node). `ConnectorScene.tsx` is the reference site's 3D BNC model without its drei `<Html>` labels, which crashed on unmount.
 
 ## Security model
 

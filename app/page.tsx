@@ -12,7 +12,8 @@ import { SignalDiagram } from "@/components/SignalDiagram";
 import { EnquiryForm } from "@/components/EnquiryForm";
 import { getCategories, getFaqs, getIntro } from "@/lib/content";
 import { site, mainSite } from "@/content/site";
-import { steps, uses, who, why } from "@/content/story";
+import { OrderFlow } from "@/components/OrderFlow";
+import { uses, who, why } from "@/content/story";
 
 export const revalidate = 300;
 
@@ -90,16 +91,8 @@ export default async function Home() {
           </div>
         </Section>
 
-        <Section pin id="process" label="04 · How we work" title="From your requirement to your order.">
-          <ol className="grid gap-px bg-line md:grid-cols-5">
-            {steps.map((s, i) => (
-              <li key={s.title} className="bg-ink p-6 md:min-h-64">
-                <span className="font-display text-5xl text-cyan">{i + 1}</span>
-                <h3 className="mt-6 text-lg font-medium">{s.title}</h3>
-                <p className="mt-2 text-sm text-mute">{s.body}</p>
-              </li>
-            ))}
-          </ol>
+        <Section id="process" label="04 · How an order moves" title="Every order runs on a system, panel by panel.">
+          <OrderFlow />
         </Section>
 
         <Section pin id="why" label="05 · Why SETMI INDIA" title={why.heading}>

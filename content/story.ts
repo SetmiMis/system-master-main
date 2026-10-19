@@ -37,14 +37,27 @@ export const uses = {
   ],
 };
 
-// Proposed process, approved by the owner on 2026-10-19. Editable.
-export const steps: Step[] = [
-  { title: "Understand the requirement", body: "Tell us what you are connecting and where." },
-  { title: "Identify the product", body: "We match it to a product or specification." },
-  { title: "Confirm compatibility and availability", body: "We check it fits and is in stock." },
-  { title: "Quotation and ordering", body: "We coordinate the quotation and your order." },
-  { title: "Fulfilment support", body: "We support you through delivery as agreed." },
+// Order journey. Steps and system names come from the SETMI overview project
+// (C:\Users\SETMI INDIA\Documents\setmi-overview, src/lib/data.ts and systems.ts).
+// Systems flagged internal there (OMS, ERP, attendance) are shown by function, never by name or link.
+// DRAFT: the step-to-system mapping below needs confirmation from operations before launch.
+export interface OrderStep extends Step { panel: string; system: string }
+export const steps: OrderStep[] = [
+  { panel: "01", title: "Enquiry", body: "You share the connector or cable type, specification and quantity.", system: "Order Management" },
+  { panel: "02", title: "Technical check", body: "Our team checks the requirement against catalogued parts and flags anything custom.", system: "Order Management" },
+  { panel: "03", title: "Quotation", body: "Price and lead time are confirmed and the order is raised.", system: "Sales FMS" },
+  { panel: "04", title: "Stock or purchase", body: "Parts are allocated from stock, or routed to purchase and production.", system: "Inventory · Purchase FMS · Production planning" },
+  { panel: "05", title: "Quality check", body: "The order is inspected before it leaves.", system: "Quality Records" },
+  { panel: "06", title: "Dispatch", body: "Packed, labelled and handed to the courier with a tracking reference.", system: "Dispatch & Tracking" },
+  { panel: "07", title: "Delivery", body: "The order is closed once delivery is confirmed with you.", system: "Client Communication Log" },
 ];
+
+export const orderBranch = {
+  from: "04",
+  question: "Is it in stock?",
+  yes: "Allocate from inventory, then straight to quality check.",
+  no: "Purchase FMS raises the purchase order; production planning schedules any manufacturing; then quality check.",
+};
 
 export const why = {
   heading: "What we can stand behind.",

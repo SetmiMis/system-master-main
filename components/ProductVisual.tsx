@@ -20,7 +20,7 @@ export function ProductVisual({ cat, sizes, priority = false }: { cat: Category;
       fill
       sizes={sizes}
       priority={priority}
-      className="object-cover"
+      className="origin-bottom scale-[1.3] object-cover"
       style={{ objectPosition: cat.focus ?? "50% 50%" }}
     />
   );

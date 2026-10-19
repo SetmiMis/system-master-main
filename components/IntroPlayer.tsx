@@ -111,7 +111,7 @@ export function IntroPlayer({ cues, duration, videoUrl, posterUrl, slides, onClo
           <>
             <AnimatePresence>
               {slide && (
-                <motion.div key={slide.src} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 0.4 }} exit={{ opacity: 0 }} transition={{ duration: 1.2 }}>
+                <motion.div key={slide.src} className="absolute inset-0 [mask-image:linear-gradient(to_top,black_35%,transparent_80%)]" initial={{ opacity: 0 }} animate={{ opacity: 0.4 }} exit={{ opacity: 0 }} transition={{ duration: 1.2 }}>
                   <Image src={slide.src} alt="" fill sizes="100vw" className="drift object-cover" style={{ objectPosition: slide.position }} />
                 </motion.div>
               )}

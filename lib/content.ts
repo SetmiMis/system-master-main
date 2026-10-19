@@ -41,5 +41,5 @@ export async function getIntro(): Promise<{ vtt: string; videoUrl: string | null
   if (!db) return base;
   const { data } = await db.from("scenes").select("vtt,video_url,poster_url").eq("slug", "intro").eq("status", "published").maybeSingle();
   if (!data) return base;
-  return { ...base, vtt: data.vtt ?? base.vtt, videoUrl: data.video_url, posterUrl: data.poster_url };
+  return { ...base, vtt: data.vtt?.trim() ? data.vtt : base.vtt, videoUrl: data.video_url, posterUrl: data.poster_url };
 }

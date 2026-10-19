@@ -10,6 +10,8 @@ import { activeCue, parseVtt } from "@/lib/vtt";
 import { sceneComponents, type SceneProps } from "@/components/film/Scenes";
 import type { Category } from "@/types/content";
 import type { ExpoPhoto } from "@/content/expo";
+import type { ReviewData, ShopSeries } from "@/lib/live";
+import { useFilmAudio } from "@/components/film/useFilmAudio";
 
 interface Props {
   vtt: string;
@@ -17,6 +19,8 @@ interface Props {
   posterUrl: string | null;
   cats: Category[];
   photos: ExpoPhoto[];
+  shop: ShopSeries[];
+  reviews: ReviewData;
 }
 
 const sub = (q: string, ev: "change" | "visibilitychange") => (cb: () => void) => {
@@ -32,14 +36,14 @@ const subHidden = sub("", "visibilitychange");
  * timeline, so pausing pauses everything. No page scroll: scenes advance on their own; visitors can
  * pause, step, jump from the timeline, use arrow keys / space, or swipe. Reduced-motion visitors start paused.
  */
-export function Film({ vtt, videoUrl, posterUrl, cats, photos }: Props) {
+export function Film({ vtt, videoUrl, posterUrl, cats, photos, shop, reviews }: Props) {
   const reduced = useSyncExternalStore(subReduced, () => window.matchMedia(RM).matches, () => false);
   const hidden = useSyncExternalStore(subHidden, () => document.hidden, () => false);
   const [manual, setManual] = useState<boolean | null>(null);
   const [idx, setIdx] = useState(0);
   const [t, setT] = useState(0);
   const [captions, setCaptions] = useState(true);
-  const [muted, setMuted] = useState(true);
+  const [sound, setSound] = useState(false); // off until the visitor asks (autoplay rules)
   const [videoFailed, setVideoFailed] = useState(false);
   const [menu, setMenu] = useState(false);
   const swipe = useRef<number | null>(null);
@@ -50,6 +54,7 @@ export function Film({ vtt, videoUrl, posterUrl, cats, photos }: Props) {
   const cues = parseVtt(vtt);
   const cue = activeCue(cues, sceneOffsets[idx] + t);
   const video = videoUrl && !videoFailed ? videoUrl : null;
+  useFilmAudio(sound && !video, playing, cue?.text);
 
   const go = useCallback((i: number, at = 0) => { setIdx(Math.max(0, Math.min(filmScenes.length - 1, i))); setT(at); setMenu(false); }, []);
 
@@ -83,7 +88,7 @@ export function Film({ vtt, videoUrl, posterUrl, cats, photos }: Props) {
   }, [idx, playing, go]);
 
   const props: SceneProps = {
-    t, d: scene.duration, cats, photos, videoUrl: video, posterUrl, muted,
+    t, d: scene.duration, cats, photos, shop, reviews, videoUrl: video, posterUrl, muted: !sound,
     onVideoError: () => setVideoFailed(true),
     seek: (x) => setT(x),
     restart: () => { go(0); setManual(true); },
@@ -99,7 +104,9 @@ export function Film({ vtt, videoUrl, posterUrl, cats, photos }: Props) {
         <Link href="/" aria-label="SETMI INDIA home"><Image src="/brand/setmi-logo.png" alt="SETMI INDIA" width={130} height={43} priority className="h-8 w-auto md:h-9" /></Link>
         <nav aria-label="Primary" className="flex items-center gap-1 text-sm md:gap-2">
           <Link href="/products" className="hidden rounded-lg px-3 py-2 text-white/80 hover:text-white sm:block">Products</Link>
-          <Link href="/expo" className="hidden rounded-lg px-3 py-2 text-white/80 hover:text-white md:block">Expos</Link>
+          <Link href="/systems" className="hidden rounded-lg px-3 py-2 text-white/80 hover:text-white md:block">Systems</Link>
+          <Link href="/dashboard" className="hidden rounded-lg px-3 py-2 text-white/80 hover:text-white lg:block">Numbers</Link>
+          <Link href="/expo" className="hidden rounded-lg px-3 py-2 text-white/80 hover:text-white lg:block">Expos</Link>
           <Link href="/faq" className="hidden rounded-lg px-3 py-2 text-white/80 hover:text-white md:block">FAQ</Link>
           <Link href="/enquiry" className="btn !min-h-9 !border-white !bg-white !text-[#013556]">Enquire</Link>
         </nav>
@@ -178,11 +185,13 @@ export function Film({ vtt, videoUrl, posterUrl, cats, photos }: Props) {
           <div className="ml-auto flex items-center gap-2">
             <button className="btn icon-btn" aria-pressed={captions} onClick={() => setCaptions((c) => !c)} aria-label={`Captions ${captions ? "on" : "off"}`}><Captions size={18} aria-hidden /></button>
             <button
-              className="btn icon-btn" disabled={!video} onClick={() => setMuted((m) => !m)}
-              title={video ? undefined : "Narration has not been recorded yet"}
-              aria-label={video ? `Sound ${muted ? "off" : "on"}` : "Sound unavailable: narration not recorded yet"}
+              className={`btn icon-btn ${sound ? "!border-accent text-accent" : ""}`}
+              onClick={() => setSound((s) => !s)}
+              aria-pressed={sound}
+              title={video ? undefined : "Computer voice reads the captions until a recorded narration is added"}
+              aria-label={`Sound ${sound ? "on" : "off"}`}
             >
-              {muted || !video ? <VolumeX size={18} aria-hidden /> : <Volume2 size={18} aria-hidden />}
+              {sound ? <Volume2 size={18} aria-hidden /> : <VolumeX size={18} aria-hidden />}
             </button>
             <div className="relative">
               <button className="btn icon-btn" aria-expanded={menu} aria-controls="scene-menu" onClick={() => setMenu((m) => !m)} aria-label="All scenes"><ListVideo size={18} aria-hidden /></button>

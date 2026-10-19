@@ -61,8 +61,8 @@ export async function saveCategory(f: FormData) {
 
 export async function saveScene(f: FormData) {
   const db = await requireAdmin();
-  const p = z.object({ video_url: z.string().url().nullable(), poster_url: z.string().max(500).nullable(), vtt: z.string().max(20000), status }).safeParse({
-    video_url: text(f.get("video_url")) || null, poster_url: text(f.get("poster_url")) || null, vtt: String(f.get("vtt") ?? ""), status: f.get("status"),
+  const p = z.object({ video_url: z.string().url().nullable(), poster_url: z.string().max(500).nullable(), vtt: z.string().max(20000).nullable(), status }).safeParse({
+    video_url: text(f.get("video_url")) || null, poster_url: text(f.get("poster_url")) || null, vtt: String(f.get("vtt") ?? "").trim() || null, status: f.get("status"),
   });
   if (!p.success) back("Invalid scene: " + p.error.issues.map((i) => i.path + " " + i.message).join("; "));
   const { error } = await db.from("scenes").update(p.data!).eq("slug", text(f.get("slug")));

@@ -11,7 +11,9 @@ export function Header() {
         <nav aria-label="Primary" className="flex items-center gap-1 text-sm">
           <Link href="/" className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-white/80 hover:text-white sm:flex"><Play size={14} aria-hidden /> Film</Link>
           <Link href="/products" className="rounded-lg px-3 py-2 text-white/80 hover:text-white">Products</Link>
-          <Link href="/expo" className="hidden rounded-lg px-3 py-2 text-white/80 hover:text-white md:block">Expos</Link>
+          <Link href="/systems" className="hidden rounded-lg px-3 py-2 text-white/80 hover:text-white md:block">Systems</Link>
+          <Link href="/dashboard" className="hidden rounded-lg px-3 py-2 text-white/80 hover:text-white lg:block">Numbers</Link>
+          <Link href="/expo" className="hidden rounded-lg px-3 py-2 text-white/80 hover:text-white lg:block">Expos</Link>
           <Link href="/faq" className="hidden rounded-lg px-3 py-2 text-white/80 hover:text-white md:block">FAQ</Link>
           <Link href="/enquiry" className="btn !min-h-9 !border-white !bg-white !text-[#013556]">Enquire</Link>
         </nav>

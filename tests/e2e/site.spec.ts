@@ -35,12 +35,13 @@ test("next, previous, keyboard and timeline jump between scenes", async ({ page 
   await expect(page.getByText("Sales FMS").first()).toBeVisible();
 });
 
-test("captions follow the film and can be turned off; sound is honestly disabled", async ({ page }) => {
+test("captions follow the film and can be turned off; sound can be switched on", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Every connection enables something greater.").last()).toBeVisible({ timeout: 5_000 });
   await page.getByRole("button", { name: "Captions on" }).click();
   await expect(page.getByRole("button", { name: "Captions off" })).toBeVisible();
-  await expect(page.getByRole("button", { name: /Sound unavailable/ })).toBeDisabled();
+  await page.getByRole("button", { name: "Sound off" }).click();
+  await expect(page.getByRole("button", { name: "Sound on" })).toHaveAttribute("aria-pressed", "true");
 });
 
 test("reduced motion: the film starts paused", async ({ browser }) => {
@@ -57,7 +58,7 @@ test("3D connector scene loads without errors", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
-  await page.getByRole("button", { name: /Scene 4: Inside a connector/ }).click();
+  await page.getByRole("button", { name: /Scene 5: Inside a connector/ }).click();
   await expect(page.locator("canvas")).toBeVisible({ timeout: 15_000 });
   await page.getByRole("button", { name: "Next scene" }).click();
   await page.waitForTimeout(1500);
@@ -100,4 +101,25 @@ test("admin requires sign-in and is not indexable; no secrets in HTML", async ({
   await expect(page).toHaveURL(/\/admin\/login/);
   expect(await (await request.get("/robots.txt")).text()).toContain("Disallow: /admin");
   expect(await (await request.get("/")).text()).not.toMatch(/service_role|sb_secret_/);
+});
+
+test("trust scenes show the published figures, certificate and marketplaces", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Pause" }).click();
+  await page.getByRole("button", { name: /Scene 8: Verified quality/ }).click();
+  await expect(page.getByText("IN/66820947/4632")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Find us on GeM/ })).toHaveAttribute("href", "https://gem.gov.in");
+  await page.getByRole("button", { name: /Scene 9: What customers say/ }).click();
+  await expect(page.getByText(/Rated 4.9 on Google by 301 customers/).first()).toBeVisible();
+});
+
+test("systems scene and page link to the live systems; dashboard shows no sample numbers", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Pause" }).click();
+  await page.getByRole("button", { name: /Scene 7: Our systems/ }).click();
+  await expect(page.getByRole("link", { name: /Sales FMS/ })).toHaveAttribute("href", "https://sales-fms.vercel.app");
+  await page.goto("/systems");
+  await expect(page.getByRole("link", { name: /Purchase FMS/ })).toHaveAttribute("href", "https://setmi-purchase-fms.vercel.app");
+  await page.goto("/dashboard");
+  await expect(page.getByText("We do not show sample numbers.")).toBeVisible();
 });

@@ -28,7 +28,8 @@ First e2e run: `npx playwright install chromium`.
 
 ## What is in it
 
-- `/` : a short auto-playing film (9 scenes, about 90 seconds) instead of a long scroll page. Visitors can pause, step, jump on the timeline, use arrow keys or swipe; captions run from one WebVTT track. Scenes: welcome, who we are, what we supply, a 3D BNC connector, where it is used, how an order moves (animated system explainer), expos, why SETMI, and a closing call to action.
+- `/` : an auto-playing film (11 scenes, about 2 minutes) instead of a long scroll page. Visitors can pause, step, jump on the timeline, use arrow keys or swipe; captions run from one WebVTT track, and Sound reads them aloud (browser voice) over a quiet synthesised ambience. Scenes: welcome, who we are with company figures, what we supply, ready to order today (live store prices), a 3D BNC connector, how an order moves, our systems (clickable), verified quality (ISO certificate, GeM, Amazon, IndustryBuying), Google rating and reviews, expos, and a closing call to action.
+- `/systems` : the public company systems, grouped and clickable. `/dashboard` : company figures, and live enquiry trends once the E2O feed is connected (no sample numbers are shown).
 - `/products`, `/products/[slug]` : category pages linking to setmiindia.com.
 - `/expo` : expo photo gallery with lightbox. `/faq` : questions and answers. `/enquiry` : enquiry and quotation form.
 - `/api/enquiry` : validated, rate-limited enquiry endpoint (stores to Supabase).

@@ -25,6 +25,10 @@ WEBVTT
 First caption line.
 ```
 
+## Company figures, certificate, marketplaces, systems
+
+`content/trust.ts` (code change and deploy): company figures (orders, customers, staff, years), ISO certificate details and files (`public/certificates/`), marketplace links, and the public systems list. These were copied from the company reference site at the owner's request on 2026-10-19; keep them in step with it.
+
 ## Change product information
 
 `/admin`, Product categories. One item per line for Range, Used for and Examples. **Only enter facts that are on setmiindia.com or approved by the company.** Set status to draft to hide a category. Images: put a file in `public/products/` and enter `/products/name.png`, or paste an HTTPS URL (then add its host to `images.remotePatterns` in `next.config.ts`).

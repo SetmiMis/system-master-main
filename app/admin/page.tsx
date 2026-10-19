@@ -35,7 +35,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<{ 
             <input type="hidden" name="slug" value="intro" />
             <label className="eyebrow block">Video URL (https, MP4/WebM)<input name="video_url" defaultValue={scene.data.video_url ?? ""} className={field} /></label>
             <label className="eyebrow block">Poster image URL<input name="poster_url" defaultValue={scene.data.poster_url ?? ""} className={field} /></label>
-            <label className="eyebrow block">Captions (WebVTT)<textarea name="vtt" rows={10} defaultValue={scene.data.vtt ?? ""} className={`${field} font-mono`} /></label>
+            <label className="eyebrow block">Captions (WebVTT, whole-film timeline; leave empty to use the built-in captions)<textarea name="vtt" rows={10} defaultValue={scene.data.vtt ?? ""} className={`${field} font-mono`} /></label>
             <Status v={scene.data.status} />
             <button className="btn btn-primary">Save scene</button>
           </form>

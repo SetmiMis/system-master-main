@@ -1,6 +1,10 @@
 # Deployment (Vercel)
 
-Status: **not deployed from this repository yet.** Nothing here has been verified as live.
+Status (2026-10-19): **live** at https://setmi-beyond-connections.vercel.app (Vercel project `setmi-beyond-connections`, team Setmi India). Deployed to production from branch `feat/cinematic-experience`, commit bf6d807. Checked: home, /products, /systems and /robots.txt return 200 without login; the gate, film and 3D map run with no page errors; /api/enquiry rejects invalid input (400).
+
+The existing `system-master` project (the company reference site) was not touched.
+
+**Important:** the project's production branch is the repository default (`main`), which still holds only the starter README. Merge `feat/cinematic-experience` into `main` (pull request) so future pushes to `main` deploy this site; until then, pushes to the feature branch create preview deployments only.
 
 ## Steps
 1. In Vercel, import `SetmiMis/system-master-main` (or use the existing project if there is one: Project Settings, Git, connect this repo). Do not create a duplicate project for the same domain.

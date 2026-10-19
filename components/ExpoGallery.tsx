@@ -23,7 +23,7 @@ export function ExpoGallery({ photos }: { photos: ExpoPhoto[] }) {
               type="button"
               onClick={() => { setOpen(i); dialog.current?.showModal(); }}
               aria-label={`Open expo photo ${i + 1} of ${photos.length}`}
-              className="group block w-full cursor-zoom-in overflow-hidden border border-line"
+              className="group block w-full cursor-zoom-in overflow-hidden rounded-xl border border-panel-line"
             >
               <Image src={`/expo/expo-${p.id}-s.webp`} alt={alt} width={p.w} height={p.h} sizes="(min-width:1024px) 25vw, (min-width:640px) 33vw, 50vw" className="h-auto w-full transition-transform duration-700 group-hover:scale-[1.04]" />
             </button>
@@ -36,14 +36,14 @@ export function ExpoGallery({ photos }: { photos: ExpoPhoto[] }) {
         aria-label="Expo photo viewer"
         onClick={(e) => e.target === dialog.current && dialog.current?.close()}
         onKeyDown={(e) => { if (e.key === "ArrowRight") step(1); if (e.key === "ArrowLeft") step(-1); }}
-        className="m-auto max-h-[94vh] max-w-[96vw] bg-transparent p-0 text-paper backdrop:bg-black/85"
+        className="zoomable-dialog max-h-[94vh] max-w-[96vw] bg-transparent p-0"
       >
         <div className="relative">
-          <Image src={`/expo/expo-${cur.id}.webp`} alt={alt} width={cur.w} height={cur.h} sizes="96vw" className="block max-h-[88vh] w-auto max-w-[92vw] object-contain" />
-          <button type="button" onClick={() => dialog.current?.close()} aria-label="Close" className="absolute right-2 top-2 grid h-10 w-10 place-items-center bg-black/70 hover:bg-black"><X size={18} aria-hidden /></button>
-          <button type="button" onClick={() => step(-1)} aria-label="Previous photo" className="absolute left-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center bg-black/70 hover:bg-black"><ChevronLeft size={20} aria-hidden /></button>
-          <button type="button" onClick={() => step(1)} aria-label="Next photo" className="absolute right-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center bg-black/70 hover:bg-black"><ChevronRight size={20} aria-hidden /></button>
-          <p className="label absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 px-3 py-1 tabular-nums">{open + 1} / {photos.length}</p>
+          <Image src={`/expo/expo-${cur.id}.webp`} alt={alt} width={cur.w} height={cur.h} sizes="96vw" className="block max-h-[88vh] w-auto max-w-[92vw] rounded-xl object-contain" />
+          <button type="button" onClick={() => dialog.current?.close()} aria-label="Close" className="absolute right-2 top-2 grid h-10 w-10 place-items-center rounded-full bg-black/70 text-white hover:bg-black"><X size={18} aria-hidden /></button>
+          <button type="button" onClick={() => step(-1)} aria-label="Previous photo" className="absolute left-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-black/70 text-white hover:bg-black"><ChevronLeft size={20} aria-hidden /></button>
+          <button type="button" onClick={() => step(1)} aria-label="Next photo" className="absolute right-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-black/70 text-white hover:bg-black"><ChevronRight size={20} aria-hidden /></button>
+          <p className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/70 px-3 py-1 font-mono text-xs text-white tabular-nums">{open + 1} / {photos.length}</p>
         </div>
       </dialog>
     </>

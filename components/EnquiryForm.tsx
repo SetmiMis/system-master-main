@@ -37,7 +37,7 @@ export function EnquiryForm({ options }: Props) {
     setState("error");
   }
 
-  const input = "w-full border border-line bg-transparent px-4 py-3 text-paper placeholder:text-mute/70 focus:border-cyan";
+  const input = "w-full border border-panel-line bg-transparent px-4 py-3 text-ink placeholder:text-ink-dim/70 focus:border-accent";
 
   return (
     <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr]">
@@ -50,44 +50,44 @@ export function EnquiryForm({ options }: Props) {
           ))}
           <li><a className="btn w-full justify-start" href={`mailto:${site.email}`}><Mail size={16} aria-hidden /> {site.email}</a></li>
         </ul>
-        <p className="mt-6 text-sm text-mute">{site.address}</p>
+        <p className="mt-6 text-sm text-ink-dim">{site.address}</p>
       </div>
 
       {state === "done" ? (
-        <div role="status" className="border border-cyan p-8">
+        <div role="status" className="border border-accent p-8">
           <p className="font-display text-3xl">Thank you.</p>
-          <p className="mt-3 text-mute">We received your message and will get back to you. For anything urgent, use WhatsApp or phone.</p>
+          <p className="mt-3 text-ink-dim">We received your message and will get back to you. For anything urgent, use WhatsApp or phone.</p>
         </div>
       ) : (
         <form onSubmit={submit} noValidate className="space-y-5" aria-describedby={error ? "form-error" : undefined}>
           <fieldset className="flex gap-2">
-            <legend className="label mb-2">I would like to</legend>
+            <legend className="eyebrow mb-2">I would like to</legend>
             {(["enquiry", "quote"] as const).map((k) => (
-              <label key={k} className={`btn cursor-pointer ${kind === k ? "border-cyan text-cyan" : ""}`}>
+              <label key={k} className={`btn cursor-pointer ${kind === k ? "border-accent text-accent" : ""}`}>
                 <input type="radio" name="kind" value={k} checked={kind === k} onChange={() => setKind(k)} className="sr-only" />
                 {k === "enquiry" ? "Make an enquiry" : "Request a quotation"}
               </label>
             ))}
           </fieldset>
           <div>
-            <label htmlFor="cat" className="label">Product area</label>
+            <label htmlFor="cat" className="eyebrow">Product area</label>
             <select id="cat" value={category} onChange={(e) => setCategory(e.target.value)} className={`${input} mt-2`}>
               <option value="">Other / not sure</option>
               {options.map((o) => <option key={o.slug} value={o.slug}>{o.title}</option>)}
             </select>
           </div>
           <div className="grid gap-5 md:grid-cols-2">
-            <div><label htmlFor="name" className="label">Name</label><input id="name" name="name" autoComplete="name" required className={`${input} mt-2`} /></div>
-            <div><label htmlFor="contact" className="label">Phone or email</label><input id="contact" name="contact" autoComplete="email" required className={`${input} mt-2`} /></div>
+            <div><label htmlFor="name" className="eyebrow">Name</label><input id="name" name="name" autoComplete="name" required className={`${input} mt-2`} /></div>
+            <div><label htmlFor="contact" className="eyebrow">Phone or email</label><input id="contact" name="contact" autoComplete="email" required className={`${input} mt-2`} /></div>
           </div>
           <div>
-            <label htmlFor="message" className="label">Your requirement</label>
+            <label htmlFor="message" className="eyebrow">Your requirement</label>
             <textarea id="message" name="message" rows={5} required placeholder="Product, quantity, where it will be used" className={`${input} mt-2`} />
           </div>
           <div className="hidden" aria-hidden><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
-          {error && <p id="form-error" role="alert" className="text-sm text-[#ff8a80]">{error}</p>}
+          {error && <p id="form-error" role="alert" className="text-sm text-critical">{error}</p>}
           <button className="btn btn-primary" disabled={state === "sending"}>{state === "sending" ? "Sending…" : "Send"}</button>
-          <p className="text-xs text-mute">We use your details only to reply to this enquiry.</p>
+          <p className="text-xs text-ink-dim">We use your details only to reply to this enquiry.</p>
         </form>
       )}
     </div>

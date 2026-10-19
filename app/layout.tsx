@@ -1,15 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Instrument_Serif, Inter_Tight, JetBrains_Mono } from "next/font/google";
+import { IBM_Plex_Mono, Inter } from "next/font/google";
 import { MotionConfig } from "motion/react";
 import { site } from "@/content/site";
 import "./globals.css";
 
-const display = Instrument_Serif({ subsets: ["latin"], weight: "400", variable: "--f-display" });
-const sans = Inter_Tight({ subsets: ["latin"], variable: "--f-sans" });
-const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--f-mono" });
+// Same faces as the company reference site.
+const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-inter" });
+const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-plex-mono" });
 
 const description =
-  "SETMI INDIA has supplied audio-video cables, connectors and multimedia products from Delhi since 1983. Explore the range and send an enquiry.";
+  "SETMI INDIA has supplied audio-video cables, connectors and multimedia products from Delhi since 1983. Watch the short film, explore the range and send an enquiry.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.siteUrl),
@@ -20,11 +20,11 @@ export const metadata: Metadata = {
   icons: { icon: "/brand/setmi-logo.png" },
 };
 
-export const viewport: Viewport = { themeColor: "#0a0c0e", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#013556", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${plexMono.variable}`}>
       <body>
         <MotionConfig reducedMotion="user">{children}</MotionConfig>
       </body>

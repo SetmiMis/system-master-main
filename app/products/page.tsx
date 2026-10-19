@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { ArrowRight } from "lucide-react";
+import { PageShell } from "@/components/PageShell";
 import { ProductVisual } from "@/components/ProductVisual";
 import { getCategories } from "@/lib/content";
 
@@ -11,26 +11,21 @@ export const metadata: Metadata = { title: "Products", description: "Connectors,
 export default async function Products() {
   const categories = await getCategories();
   return (
-    <div id="page">
-      <Header />
-      <main className="mx-auto max-w-[1500px] px-5 pb-24 pt-32 md:px-10">
-        <p className="label">Catalogue</p>
-        <h1 className="mt-4 font-display text-[clamp(2.6rem,6vw,5.5rem)] leading-none">Products</h1>
-        <ul className="mt-14 grid gap-px bg-line sm:grid-cols-2 lg:grid-cols-4">
-          {categories.map((c) => (
-            <li key={c.slug} className="bg-ink">
-              <Link href={`/products/${c.slug}`} className="group block p-4">
-                <div className="relative aspect-[4/3] overflow-hidden bg-panel">
-                  <ProductVisual cat={c} sizes="(min-width:1024px) 25vw, (min-width:640px) 50vw, 100vw" />
-                </div>
-                <h2 className="mt-4 font-display text-3xl group-hover:text-cyan">{c.title}</h2>
-                <p className="mt-1 text-sm text-mute">{c.summary}</p>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </main>
-      <Footer />
-    </div>
+    <PageShell label="What we make and move" title="Eight families of connection.">
+      <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {categories.map((c) => (
+          <li key={c.slug}>
+            <Link href={`/products/${c.slug}`} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-panel-line bg-bg transition-all hover:-translate-y-1 hover:border-accent hover:shadow-[0_18px_34px_-20px_rgba(1,53,86,0.55)]">
+              <div className="relative aspect-[4/3] bg-white"><ProductVisual cat={c} sizes="(min-width:1024px) 25vw, (min-width:640px) 50vw, 100vw" /></div>
+              <div className="flex flex-1 flex-col border-t border-panel-line p-4">
+                <h2 className="text-[1.05rem] font-bold">{c.title}</h2>
+                <p className="mt-1 flex-1 text-[0.88rem] text-ink-dim">{c.summary}</p>
+                <span className="mt-3 inline-flex items-center gap-1 text-[0.88rem] font-semibold text-accent">View range <ArrowRight size={14} aria-hidden /></span>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </PageShell>
   );
 }

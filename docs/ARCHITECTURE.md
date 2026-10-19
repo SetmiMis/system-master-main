@@ -35,8 +35,11 @@ docs/           this documentation
 ## Home film (`components/film/`)
 
 `Film.tsx` owns one clock (seconds into the current scene). The clock drives the scene, its inner animation, the captions and the timeline, so pausing pauses everything. Scene list, durations and narration live in `content/film.ts`; `buildVtt()` turns the narration into one WebVTT track on the film timeline. The `intro` row of the `scenes` table can override that track and add an opening video (from `/admin`).
+- `Gate.tsx` opens the film; its click is also the browser's permission for sound. The film clock does not run until the gate is passed.
+- `CustomerMap.tsx` (three.js via react-three-fiber): every pincode centroid as a faint dot draws India; customer cells rise as pillars while the camera travels from north to south with the film clock. Data: `content/customer-map.json`.
+- Captions in English or Hindi; the browser voice reads the chosen language.
 - Autoplay only when the tab is visible; reduced-motion visitors start paused.
-- Controls: play/pause, previous/next, timeline segments, arrow keys, space, swipe, scene list, captions toggle, sound toggle.
+- Controls: a control pill (play with progress ring, previous/next, captions, sound, EN/हिं, scene list), arrow keys, space, swipe. No timeline bar.
 - Sound (`useFilmAudio.ts`): the browser speech voice (en-IN preferred) reads each caption, over a quiet Web Audio pad. Off until the visitor turns it on. A recorded narration or a video URL replaces it.
 - Live data (`lib/live.ts`, server-side, cached): store prices parsed from setmiindia.com listings (hourly), Google rating and reviews via Places API when `GOOGLE_PLACES_API_KEY` / `GOOGLE_PLACE_ID` are set (fallback 4.9 from 301), enquiry metrics from the E2O Apps Script when `E2O_METRICS_URL` / `E2O_METRICS_KEY` are set.
 - `Scenes.tsx` holds one component per scene. `OrderExplainer.tsx` is the animated order flow (shared-layout order card moving node to node). `ConnectorScene.tsx` is the reference site's 3D BNC model without its drei `<Html>` labels, which crashed on unmount.

@@ -4,6 +4,8 @@ import { Star } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { companyStats } from "@/content/trust";
 import { getMetrics, getReviews } from "@/lib/live";
+import { CustomerMapLoop } from "@/components/CustomerMapLoop";
+import customerMap from "@/content/customer-map.json";
 
 export const revalidate = 300;
 export const metadata: Metadata = { title: "SETMI INDIA in numbers", description: "Who we serve, what they ask for, and how we deliver.", alternates: { canonical: "/dashboard" } };
@@ -80,6 +82,16 @@ export default async function Dashboard() {
           </section>
         </div>
       )}
+      <section className="theme-dark mt-6 overflow-hidden rounded-2xl" aria-labelledby="map-h">
+        <div className="grid gap-4 p-6 lg:grid-cols-[0.6fr_1.4fr]">
+          <div>
+            <p className="eyebrow">Where our customers are</p>
+            <h2 id="map-h" className="mt-2 text-2xl font-extrabold">{customerMap.customersMapped} customers, {customerMap.cells} locations</h2>
+            <p className="mt-2 text-sm text-ink-dim">From our customer records (built {customerMap.builtAt}), grouped to ~50 km. No individual addresses are shown. Map points © GeoNames (CC-BY 4.0).</p>
+          </div>
+          <div className="h-[420px] lg:h-[520px]"><CustomerMapLoop /></div>
+        </div>
+      </section>
     </PageShell>
   );
 }

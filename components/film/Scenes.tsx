@@ -10,12 +10,15 @@ import { LottieIcon } from "@/components/LottieIcon";
 import { OrderExplainer } from "@/components/film/OrderExplainer";
 import { site, mainSite } from "@/content/site";
 import { who } from "@/content/story";
-import { certificate, companyStats, marketplaces, publicSystems } from "@/content/trust";
+import { certificate, companyStats, marketplaces, registrations } from "@/content/trust";
+import type { SystemCard } from "@/lib/content";
+import customerMap from "@/content/customer-map.json";
 import type { Category } from "@/types/content";
 import type { ExpoPhoto } from "@/content/expo";
 import type { ReviewData, ShopSeries } from "@/lib/live";
 
 // three.js is only downloaded when the connector scene is reached.
+const CustomerMap = dynamic(() => import("@/components/film/CustomerMap"), { ssr: false, loading: () => <div className="grid h-full place-items-center text-sm text-ink-dim">Loading map…</div> });
 const ConnectorScene = dynamic(() => import("@/components/film/ConnectorScene"), {
   ssr: false,
   loading: () => <div className="grid h-full place-items-center text-sm text-ink-dim">Loading 3D view…</div>,
@@ -28,6 +31,7 @@ export interface SceneProps {
   photos: ExpoPhoto[];
   shop: ShopSeries[];
   reviews: ReviewData;
+  systems: SystemCard[];
   videoUrl: string | null;
   posterUrl: string | null;
   muted: boolean;
@@ -262,9 +266,57 @@ export function Order({ t, d }: SceneProps) {
   );
 }
 
+// Major cities used only to name the busiest map cells.
+const CITIES: [string, number, number][] = [
+  ["Delhi NCR", 28.6, 77.2], ["Bengaluru", 12.97, 77.59], ["Pune", 18.52, 73.86], ["Mumbai", 19.08, 72.88], ["Chennai", 13.08, 80.27],
+  ["Hyderabad", 17.39, 78.49], ["Ahmedabad", 23.02, 72.57], ["Kolkata", 22.57, 88.36], ["Jaipur", 26.91, 75.79], ["Coimbatore", 11.02, 76.96],
+  ["Hosur", 12.74, 77.83], ["Gurugram", 28.46, 77.03], ["Noida", 28.54, 77.39], ["Rajkot", 22.3, 70.8], ["Nagpur", 21.15, 79.09],
+  ["Indore", 22.72, 75.86], ["Kochi", 9.93, 76.27], ["Chandigarh", 30.73, 76.78], ["Lucknow", 26.85, 80.95], ["Vadodara", 22.31, 73.18],
+];
+const cityOf = (lat: number, lng: number) => {
+  let best = CITIES[0], d = Infinity;
+  for (const c of CITIES) { const x = (c[1] - lat) ** 2 + (c[2] - lng) ** 2; if (x < d) { d = x; best = c; } }
+  return d < 1.2 ? best[0] : `${lat.toFixed(1)}°N, ${lng.toFixed(1)}°E`;
+};
+
+export function MapScene({ t, d }: SceneProps) {
+  // busiest places, cells merged by nearest city name
+  const byCity = new Map<string, number>();
+  for (const [lat, lng, n] of customerMap.customers) byCity.set(cityOf(lat, lng), (byCity.get(cityOf(lat, lng)) ?? 0) + n);
+  const top = [...byCity].sort((x, y) => y[1] - x[1]).slice(0, 6);
+  const max = top[0]?.[1] ?? 1;
+  return (
+    <Stage dark>
+      <div className="grid w-full items-center gap-6 lg:grid-cols-[0.75fr_1.25fr]">
+        <div>
+          <Eyebrow>Where our customers are</Eyebrow>
+          <H className="mt-4">From the north to the south of India.</H>
+          <div className="mt-6 flex gap-6">
+            <p><span className="block font-mono text-4xl font-semibold text-accent"><Count to={customerMap.customersMapped} t={t} delay={0.5} /></span><span className="text-sm text-ink-dim">customers on the map</span></p>
+            <p><span className="block font-mono text-4xl font-semibold text-accent"><Count to={customerMap.cells} t={t} delay={0.8} /></span><span className="text-sm text-ink-dim">locations (~50 km)</span></p>
+          </div>
+          <ol className="mt-6 space-y-2">
+            {top.map(([city, n], i) => (
+              <motion.li key={city} {...rise(0.6 + i * 0.12)} className="text-sm">
+                <div className="flex justify-between"><span>{city}</span><span className="font-mono tabular-nums text-ink-dim">{n}</span></div>
+                <div className="mt-1 h-1 rounded-full bg-white/10"><motion.div className="h-full rounded-full bg-accent" initial={{ width: 0 }} animate={{ width: `${(n / max) * 100}%` }} transition={{ duration: 1, delay: 0.8 + i * 0.12 }} /></div>
+              </motion.li>
+            ))}
+          </ol>
+          <p className="mt-5 text-[0.7rem] text-ink-dim">From our customer records, grouped to ~50 km. No individual addresses are shown. Map points © GeoNames.</p>
+        </div>
+        <div className="relative h-[46svh] min-h-[320px] lg:h-[64svh]">
+          <CustomerMap progress={Math.min(t / (d * 0.9), 1)} />
+          <p className="pointer-events-none absolute right-2 top-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 font-mono text-[0.68rem] text-ink-dim">◯ Delhi HQ</p>
+        </div>
+      </div>
+    </Stage>
+  );
+}
+
 /** Google-style feature tour: cards land one by one, then the spotlight walks across them. */
-export function Systems({ t, d }: SceneProps) {
-  const n = publicSystems.length;
+export function Systems({ t, d, systems }: SceneProps) {
+  const n = systems.length;
   const lit = Math.min(Math.max(Math.floor(((t - 1.5) / (d - 1.5)) * n), -1), n - 1);
   const host = (u: string) => new URL(u).host;
   return (
@@ -281,7 +333,7 @@ export function Systems({ t, d }: SceneProps) {
           </div>
         </div>
         <ul className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {publicSystems.map((s, i) => {
+          {systems.map((s, i) => {
             const on = i === lit;
             return (
               <motion.li key={s.name} initial={{ opacity: 0, y: 30, scale: 0.94 }} animate={{ opacity: 1, y: on ? -8 : 0, scale: on ? 1.04 : 1 }} transition={{ type: "spring", stiffness: 140, damping: 18, delay: t < 1.5 ? 0.15 * i : 0 }}>
@@ -328,7 +380,18 @@ export function Quality({ t }: SceneProps) {
             <p className="mt-1 text-[0.85rem] text-ink-dim">Certificate no. <span className="font-mono font-semibold text-ink">{certificate.number}</span> · issued {certificate.issued}</p>
             <a href={certificate.pdf} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline"><FileText size={14} aria-hidden /> View certificate (PDF)</a>
           </motion.div>
-          <ul className="mt-4 grid gap-3 sm:grid-cols-3">
+          <ul className="mt-3 grid gap-2 sm:grid-cols-3" aria-label="Government registrations">
+            {registrations.map((r, i) => (
+              <motion.li key={r.id} {...rise(0.4 + i * 0.12)}>
+                <a href={r.verify} target="_blank" rel="noopener noreferrer" className="block h-full rounded-xl border border-panel-line bg-bg px-3 py-2 transition-colors hover:border-accent" title={`Verify on the official portal`}>
+                  <p className="text-[0.72rem] font-semibold text-ink-dim">{r.name}</p>
+                  <p className="font-mono text-[0.78rem] font-semibold">{r.id}</p>
+                  <p className="text-[0.68rem] text-accent">Verify ↗</p>
+                </a>
+              </motion.li>
+            ))}
+          </ul>
+          <ul className="mt-3 grid gap-3 sm:grid-cols-3">
             {marketplaces.map((m, i) => (
               <motion.li key={m.name} {...rise(0.5 + i * 0.15)}>
                 <a href={m.href} target="_blank" rel="noopener noreferrer" className="flex h-full flex-col rounded-xl border border-panel-line bg-bg p-3 transition-colors hover:border-accent">
@@ -428,5 +491,5 @@ export function Closing({ restart }: SceneProps) {
 }
 
 export const sceneComponents: Record<string, (p: SceneProps) => React.ReactNode> = {
-  opening: Opening, who: Who, supply: Supply, shop: Shop, connector: Connector, order: Order, systems: Systems, quality: Quality, reviews: Reviews, expo: Expo, closing: Closing,
+  opening: Opening, who: Who, supply: Supply, shop: Shop, connector: Connector, map: MapScene, order: Order, systems: Systems, quality: Quality, reviews: Reviews, expo: Expo, closing: Closing,
 };

@@ -18,3 +18,7 @@ Reads return published rows only; a draft FAQ was invisible; inserting a categor
 
 ## Advisor notes
 `is_admin()` is `SECURITY DEFINER` and callable by `anon` by design (RLS policies evaluate it as the caller). It returns only a boolean about the caller. `rls_auto_enable()` is not part of this repo's migration; it already existed in the project.
+
+## Applied on 2026-10-19 (later)
+- `migrations/20261019010000_systems.sql`: `systems` table (public reads published rows, admins write), seeded with the five public systems. Verified: anon read returns 5 rows; anon insert is refused by RLS.
+- The film caption row (`scenes.intro.vtt`) was set to null so the built-in English track is used.

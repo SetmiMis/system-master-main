@@ -18,6 +18,14 @@ export const certificate = {
   pdf: "/certificates/iso-9001-certificate.pdf",
 };
 
+// Government registrations, from the owner's certificates (GST REG-06, DGFT IEC, MSME Udyam) shared on 2026-10-19.
+// Only the public registration numbers are shown; the PDFs contain bank, PAN and turnover details and are NOT published.
+export const registrations = [
+  { name: "GST registered", id: "07AIJPK2678P1ZI", note: "Regular taxpayer since 2017", verify: "https://services.gst.gov.in/services/searchtp" },
+  { name: "Importer-Exporter Code", id: "0502065621", note: "DGFT, issued 2003", verify: "https://www.dgft.gov.in/CP/?opt=view-any-ice" },
+  { name: "Udyam (MSME)", id: "UDYAM-DL-01-0016520", note: "Ministry of MSME, wholesale of electronic parts", verify: "https://udyamregistration.gov.in/Udyam_Verify.aspx" },
+];
+
 export const marketplaces = [
   { name: "Government e-Marketplace (GeM)", logo: "/logos/gem.png", href: "https://gem.gov.in", note: "Registered seller: government departments and PSUs can buy directly.", cta: "Find us on GeM" },
   { name: "Amazon.in", logo: "/logos/amazon.svg", href: "https://www.amazon.in/stores/SetmiIndia/page/0A46CD60-B6C5-4476-BD1D-01F0AC3DE15B", note: "Connectors, cables and audio hardware, delivered by Amazon.", cta: "Visit our store" },

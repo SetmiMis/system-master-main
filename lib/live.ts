@@ -27,31 +27,45 @@ const SERIES: [string, string][] = [
 const decode = (s: string) =>
   s.replace(/&#8377;/g, "₹").replace(/&amp;/g, "&").replace(/&#8211;|&#8212;/g, "–").replace(/&#038;/g, "&").replace(/&#8217;/g, "'").replace(/<[^>]+>/g, "").trim();
 
-/** Live prices parsed from the public store listings on setmiindia.com (hourly). Empty on any failure. */
+/** Products from one WooCommerce listing page of setmiindia.com (title, link, image, price, MOQ). */
+export function parseListing(html: string): ShopProduct[] {
+  return html
+    .split("<li class=\"")
+    .filter((li) => li.includes("type-product"))
+    .flatMap((li): ShopProduct[] => {
+      const link = li.match(/href="(https:\/\/setmiindia\.com\/product\/[^"]+)"/)?.[1];
+      const image = li.match(/data-src="([^"]+)"/)?.[1];
+      const title = li.match(/loop-product__title">([^<]+)</)?.[1];
+      const price = li.match(/Current price is: ([^<]+)\./)?.[1] ?? li.match(/Price-currencySymbol[^>]*>([^<]+)<\/span>([\d,.]+)/)?.slice(1).join("");
+      if (!link || !image || !title || !price) return [];
+      return [{ title: decode(title).replace(/\s*Setmi India$/i, "").replace(/\s*\|\s*$/, ""), url: link, image, price: decode(price).replace(/\.00$/, ""), moq: li.match(/Minimum qty is (\d+)/)?.[1] }];
+    });
+}
+
+async function fetchListing(url: string): Promise<ShopProduct[]> {
+  try {
+    const res = await fetch(url, { next: { revalidate: 3600 } });
+    return res.ok ? parseListing(await res.text()) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Live prices for the "Ready to order today" scene (hourly). Empty on any failure. */
 export async function getShopSeries(): Promise<ShopSeries[]> {
-  const load = async ([name, slug]: [string, string]): Promise<ShopSeries> => {
+  const series = await Promise.all(SERIES.map(async ([name, slug]) => {
     const url = `https://setmiindia.com/${slug}/`;
-    try {
-      const res = await fetch(url, { next: { revalidate: 3600 } });
-      if (!res.ok) throw new Error(String(res.status));
-      const products = (await res.text())
-        .split('<li class="ast-article-single')
-        .slice(1)
-        .flatMap((li): ShopProduct[] => {
-          const link = li.match(/href="(https:\/\/setmiindia\.com\/product\/[^"]+)"/)?.[1];
-          const image = li.match(/data-src="([^"]+)"/)?.[1];
-          const title = li.match(/loop-product__title">([^<]+)</)?.[1];
-          const price = li.match(/Current price is: ([^<]+)\./)?.[1] ?? li.match(/Price-currencySymbol[^>]*>([^<]+)<\/span>([\d,.]+)/)?.slice(1).join("");
-          if (!link || !image || !title || !price) return [];
-          return [{ title: decode(title).replace(/\s*Setmi India$/i, ""), url: link, image, price: decode(price).replace(/\.00$/, ""), moq: li.match(/Minimum qty is (\d+)/)?.[1] }];
-        })
-        .slice(0, 4);
-      return { name, url, products };
-    } catch {
-      return { name, url, products: [] };
-    }
-  };
-  return (await Promise.all(SERIES.map(load))).filter((s) => s.products.length);
+    return { name, url, products: (await fetchListing(url)).slice(0, 4) };
+  }));
+  return series.filter((s) => s.products.length);
+}
+
+/** Up to `pages` listing pages (10 products each) of a setmiindia.com category, de-duplicated. */
+export async function getCategoryProducts(categoryUrl: string, pages = 4): Promise<ShopProduct[]> {
+  const base = categoryUrl.endsWith("/") ? categoryUrl : categoryUrl + "/";
+  const lists = await Promise.all(Array.from({ length: pages }, (_, i) => fetchListing(i ? `${base}page/${i + 1}/` : base)));
+  const seen = new Set<string>();
+  return lists.flat().filter((p) => !seen.has(p.url) && seen.add(p.url));
 }
 
 // Real Google reviews, used until GOOGLE_PLACES_API_KEY + GOOGLE_PLACE_ID are set.

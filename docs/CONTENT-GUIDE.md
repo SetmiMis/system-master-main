@@ -25,9 +25,27 @@ WEBVTT
 First caption line.
 ```
 
+## Systems (no deploy needed)
+
+`/admin`, Systems: add a system (name, https link, short description, group, icon, order), set it to published, save. It appears on `/systems` and in the film within 5 minutes. Draft systems stay hidden.
+
+## Customer map
+
+The map is built from the Pincode column of the CUSTOMER_MASTER sheet. Export that column to a text file, then run:
+`node scripts/build-customer-map.ts pincodes.txt "C:/Users/SETMI INDIA/appscript/PincodeGeo.js"`
+It writes `content/customer-map.json` with counts per ~50 km cell only (no names, addresses or individual pincodes). Commit that file. Do not commit the pincode export.
+
+## Hindi captions
+
+Each caption in `content/film.ts` has `en` and `hi`. The Hindi track is read by the browser's Hindi voice when the visitor picks हिं.
+
+## Registrations
+
+`content/trust.ts` lists GSTIN, IEC and Udyam numbers with links to the official verification portals. The certificate PDFs are not published: they contain PAN, bank account, turnover and personal contact details.
+
 ## Company figures, certificate, marketplaces, systems
 
-`content/trust.ts` (code change and deploy): company figures (orders, customers, staff, years), ISO certificate details and files (`public/certificates/`), marketplace links, and the public systems list. These were copied from the company reference site at the owner's request on 2026-10-19; keep them in step with it.
+`content/trust.ts` (code change and deploy): company figures (orders, customers, staff, years), ISO certificate details and files (`public/certificates/`), marketplace links, and the fallback systems list (used only if the database is unavailable). These were copied from the company reference site at the owner's request on 2026-10-19; keep them in step with it.
 
 ## Change product information
 

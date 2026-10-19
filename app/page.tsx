@@ -6,6 +6,8 @@ import { Footer } from "@/components/Footer";
 import { Opening } from "@/components/Opening";
 import { Supply } from "@/components/Supply";
 import { Reveal } from "@/components/Reveal";
+import { Pin } from "@/components/Pin";
+import { FilmHud } from "@/components/FilmHud";
 import { SignalDiagram } from "@/components/SignalDiagram";
 import { EnquiryForm } from "@/components/EnquiryForm";
 import { getCategories, getFaqs, getIntro } from "@/lib/content";
@@ -14,17 +16,33 @@ import { steps, uses, who, why } from "@/content/story";
 
 export const revalidate = 300;
 
-const Section = ({ id, label, title, children }: { id: string; label: string; title: string; children: React.ReactNode }) => (
-  <section id={id} aria-labelledby={`${id}-t`} className="border-t border-line px-5 py-24 md:px-10 md:py-36">
-    <div className="mx-auto max-w-[1500px]">
+const chapters = [
+  { id: "who", label: "Who we are" },
+  { id: "supply", label: "What we supply" },
+  { id: "uses", label: "Where it is used" },
+  { id: "process", label: "How we work" },
+  { id: "why", label: "Why SETMI" },
+  { id: "faq", label: "Questions" },
+  { id: "enquiry", label: "Find your connection" },
+];
+
+// pin = film-style scene that holds the screen briefly on large displays (see components/Pin.tsx).
+const Section = ({ id, label, title, children, pin = false }: { id: string; label: string; title: string; children: React.ReactNode; pin?: boolean }) => {
+  const body = (
+    <div className="mx-auto max-w-[1500px] px-5 py-24 md:px-10 md:py-32">
       <Reveal>
         <p className="label">{label}</p>
         <h2 id={`${id}-t`} className="mt-4 max-w-4xl font-display text-[clamp(2.2rem,5vw,4.5rem)] leading-[1.02]">{title}</h2>
       </Reveal>
       <div className="mt-14">{children}</div>
     </div>
-  </section>
-);
+  );
+  return (
+    <section id={id} aria-labelledby={`${id}-t`} className="border-t border-line">
+      {pin ? <Pin>{body}</Pin> : body}
+    </section>
+  );
+};
 
 export default async function Home() {
   const [categories, faqs, intro] = await Promise.all([getCategories(), getFaqs(), getIntro()]);
@@ -32,11 +50,12 @@ export default async function Home() {
 
   return (
     <div id="page">
+      <FilmHud chapters={chapters} />
       <Header />
       <main>
         <Opening vtt={intro.vtt} duration={intro.duration} videoUrl={intro.videoUrl} posterUrl={intro.posterUrl} slides={slides} />
 
-        <Section id="who" label="01 · Who we are" title={who.heading}>
+        <Section pin id="who" label="01 · Who we are" title={who.heading}>
           <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr]">
             <Reveal><p className="max-w-2xl text-xl leading-relaxed text-mute">{who.body}</p></Reveal>
             <dl className="grid grid-cols-3 gap-4 border-t border-line pt-6 lg:border-t-0 lg:pt-0">
@@ -54,7 +73,7 @@ export default async function Home() {
           <Supply categories={categories} />
         </Section>
 
-        <Section id="uses" label="03 · Where it is used" title={uses.heading}>
+        <Section pin id="uses" label="03 · Where it is used" title={uses.heading}>
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
               <p className="max-w-xl text-lg text-mute">{uses.body}</p>
@@ -71,7 +90,7 @@ export default async function Home() {
           </div>
         </Section>
 
-        <Section id="process" label="04 · How we work" title="From your requirement to your order.">
+        <Section pin id="process" label="04 · How we work" title="From your requirement to your order.">
           <ol className="grid gap-px bg-line md:grid-cols-5">
             {steps.map((s, i) => (
               <li key={s.title} className="bg-ink p-6 md:min-h-64">
@@ -83,7 +102,7 @@ export default async function Home() {
           </ol>
         </Section>
 
-        <Section id="why" label="05 · Why SETMI INDIA" title={why.heading}>
+        <Section pin id="why" label="05 · Why SETMI INDIA" title={why.heading}>
           <ul className="grid gap-10 md:grid-cols-3">
             {why.points.map((p) => (
               <li key={p.title} className="border-t border-cyan pt-5">

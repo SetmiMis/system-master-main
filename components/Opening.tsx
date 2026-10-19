@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { ArrowDown, Play } from "lucide-react";
 import { IntroPlayer } from "@/components/IntroPlayer";
 import { parseVtt } from "@/lib/vtt";
@@ -13,6 +13,27 @@ interface Props {
   videoUrl: string | null;
   posterUrl: string | null;
   slides: { src: string; position: string }[];
+}
+
+/** Silent looping backdrop so the first screen already moves like footage. Static for reduced-motion users (CSS stops the drift; the swap is a fade). */
+function AmbientLoop({ slides }: { slides: Props["slides"] }) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    if (slides.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = setInterval(() => setI((n) => (n + 1) % slides.length), 5500);
+    return () => clearInterval(id);
+  }, [slides.length]);
+  const s = slides[i];
+  if (!s) return null;
+  return (
+    <div aria-hidden className="absolute inset-0 [mask-image:linear-gradient(to_top,black_30%,transparent_85%)]">
+      <AnimatePresence>
+        <motion.div key={s.src} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 0.32 }} exit={{ opacity: 0 }} transition={{ duration: 1.6 }}>
+          <Image src={s.src} alt="" fill sizes="100vw" priority={i === 0} className="drift object-cover" style={{ objectPosition: s.position }} />
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
 }
 
 export function Opening({ vtt, duration, videoUrl, posterUrl, slides }: Props) {
@@ -27,6 +48,8 @@ export function Opening({ vtt, duration, videoUrl, posterUrl, slides }: Props) {
 
   return (
     <section aria-labelledby="hero-title" className="relative flex min-h-[100svh] items-end overflow-hidden pb-16 pt-28 md:pb-24">
+      <AmbientLoop slides={slides} />
+      <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-ink via-ink/75 to-transparent" />
       <svg aria-hidden viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" className="in-view absolute inset-0 h-full w-full opacity-30" fill="none" stroke="var(--color-cyan)" strokeWidth="1">
         {[160, 240, 320, 400, 480].map((y, i) => (
           <path key={y} className="draw" pathLength={1} style={{ animationDelay: `${0.3 + i * 0.25}s` }} d={`M0 ${y} H380 L440 ${y - 50} H760 L820 ${y} H1200`} />

@@ -18,9 +18,9 @@ Not installed, on purpose: GSAP (the film clock plus `motion` covers every timel
 ## Layout
 
 ```
-app/            routes: / , /products, /products/[slug], /admin, /api/enquiry, sitemap, robots
-components/     Opening, IntroPlayer, Supply, SignalDiagram, EnquiryForm, Header, Footer, ProductVisual, Reveal
-content/        typed fallback content: site, categories, faqs, story (copy), intro captions (WebVTT)
+app/            routes: / (film), /products, /products/[slug], /expo, /faq, /enquiry, /admin, /api/enquiry, sitemap, robots
+components/     film/ (Film, Scenes, OrderExplainer, ConnectorScene), PageShell, Header, Footer, ProductVisual, SignalDiagram, EnquiryForm, ExpoGallery
+content/        typed fallback content: site, categories, faqs, story (copy, order steps), film (scenes + narration), expo (photos)
 lib/            content.ts (data access), vtt.ts, enquiry.ts, supabase*.ts
 supabase/       migrations/, seed.sql, README.md
 tests/          unit/ (Vitest), e2e/ (Playwright)
